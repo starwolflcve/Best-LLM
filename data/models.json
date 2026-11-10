@@ -1,0 +1,828 @@
+{
+ "updated": "2026-11-10",
+ "note": "Catalogue des modèles open-weight pour exécution locale. p = paramètres pour la mémoire (milliards), a = paramètres actifs par token, kv = Go de cache par 1K tokens, q = indice de qualité indicatif (0-100), fixed = taille fixe en Go si quantification native.",
+ "models": [
+  {
+   "id": "qwen35-08",
+   "name": "Qwen3.5 0.8B",
+   "org": "Alibaba",
+   "p": 0.9,
+   "a": 0.9,
+   "disp": "0,8B dense",
+   "kv": 0.006,
+   "q": 16,
+   "tags": [
+    "vision",
+    "multi"
+   ],
+   "lic": "Apache 2.0",
+   "ollama": "qwen3.5:0.8b",
+   "hf": "Qwen/Qwen3.5-0.8B",
+   "note": "Minuscule : pour les très petites machines ou des tâches simples (tri, extraction)."
+  },
+  {
+   "id": "qwen35-2",
+   "name": "Qwen3.5 2B",
+   "org": "Alibaba",
+   "p": 2.1,
+   "a": 2.1,
+   "disp": "2B dense",
+   "kv": 0.012,
+   "q": 28,
+   "tags": [
+    "vision",
+    "multi"
+   ],
+   "lic": "Apache 2.0",
+   "ollama": "qwen3.5:2b",
+   "hf": "Qwen/Qwen3.5-2B",
+   "note": "Très rapide, correct pour résumer ou reformuler."
+  },
+  {
+   "id": "gemma4-e2b",
+   "name": "Gemma 4 E2B",
+   "org": "Google",
+   "p": 5.1,
+   "a": 2.3,
+   "disp": "2,3B effectifs",
+   "kv": 0.01,
+   "q": 30,
+   "tags": [
+    "vision",
+    "multi",
+    "fr"
+   ],
+   "lic": "Apache 2.0",
+   "hf": "google/gemma-4-E2B-it",
+   "note": "Modèle « edge » multimodal (texte, image, audio)."
+  },
+  {
+   "id": "qwen35-4",
+   "name": "Qwen3.5 4B",
+   "org": "Alibaba",
+   "p": 4.7,
+   "a": 4.7,
+   "disp": "4B dense",
+   "kv": 0.025,
+   "q": 46,
+   "tags": [
+    "vision",
+    "multi",
+    "reason"
+   ],
+   "lic": "Apache 2.0",
+   "ollama": "qwen3.5:4b",
+   "hf": "Qwen/Qwen3.5-4B",
+   "note": "Le meilleur rapport qualité/taille sous 4 Go."
+  },
+  {
+   "id": "gemma4-e4b",
+   "name": "Gemma 4 E4B",
+   "org": "Google",
+   "p": 8,
+   "a": 4.5,
+   "disp": "4,5B effectifs",
+   "kv": 0.015,
+   "q": 44,
+   "tags": [
+    "vision",
+    "multi",
+    "fr"
+   ],
+   "lic": "Apache 2.0",
+   "hf": "google/gemma-4-E4B-it",
+   "note": "Bon assistant léger, multilingue, avec audio et image."
+  },
+  {
+   "id": "ministral3-8",
+   "name": "Ministral 3 8B",
+   "org": "Mistral AI",
+   "p": 8.9,
+   "a": 8.9,
+   "disp": "8B dense",
+   "kv": 0.14,
+   "q": 42,
+   "tags": [
+    "fr",
+    "vision",
+    "multi"
+   ],
+   "lic": "Apache 2.0",
+   "hf": "mistralai/Ministral-3-8B-Instruct-2512",
+   "note": "Petit modèle français, très à l’aise en rédaction FR."
+  },
+  {
+   "id": "qwen35-9",
+   "name": "Qwen3.5 9B",
+   "org": "Alibaba",
+   "p": 9.5,
+   "a": 9.5,
+   "disp": "9B dense",
+   "kv": 0.03,
+   "q": 58,
+   "tags": [
+    "vision",
+    "multi",
+    "code",
+    "reason"
+   ],
+   "lic": "Apache 2.0",
+   "ollama": "qwen3.5:9b",
+   "hf": "Qwen/Qwen3.5-9B",
+   "note": "La référence pour les cartes 8 Go : polyvalent, vision, long contexte."
+  },
+  {
+   "id": "gemma4-12",
+   "name": "Gemma 4 12B",
+   "org": "Google",
+   "p": 12,
+   "a": 12,
+   "disp": "12B dense",
+   "kv": 0.06,
+   "q": 56,
+   "tags": [
+    "vision",
+    "multi",
+    "fr"
+   ],
+   "lic": "Apache 2.0",
+   "hf": "google/gemma-4-12B-it",
+   "note": "Excellent en langues et en vision, pensé pour 16 Go."
+  },
+  {
+   "id": "ministral3-14",
+   "name": "Ministral 3 14B",
+   "org": "Mistral AI",
+   "p": 14,
+   "a": 14,
+   "disp": "14B dense",
+   "kv": 0.16,
+   "q": 52,
+   "tags": [
+    "fr",
+    "vision",
+    "multi"
+   ],
+   "lic": "Apache 2.0",
+   "hf": "mistralai/Ministral-3-14B-Instruct-2512",
+   "note": "Version plus solide de Ministral, style FR naturel."
+  },
+  {
+   "id": "gptoss-20",
+   "name": "gpt-oss 20B",
+   "org": "OpenAI",
+   "p": 21,
+   "a": 3.6,
+   "disp": "21B MoE · 3,6B actifs",
+   "fixed": 13,
+   "fixedQ": "MXFP4 natif",
+   "kv": 0.05,
+   "q": 56,
+   "tags": [
+    "reason",
+    "code"
+   ],
+   "lic": "Apache 2.0",
+   "ollama": "gpt-oss:20b",
+   "hf": "openai/gpt-oss-20b",
+   "note": "Raisonnement et outils (agents), très rapide grâce au MoE. Texte seulement."
+  },
+  {
+   "id": "nemotron3-nano",
+   "name": "Nemotron 3 Nano 30B-A3B",
+   "org": "NVIDIA",
+   "p": 31.6,
+   "a": 3.2,
+   "disp": "32B MoE · 3B actifs",
+   "kv": 0.01,
+   "q": 58,
+   "tags": [
+    "reason",
+    "code"
+   ],
+   "lic": "NVIDIA Open Model",
+   "hf": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B",
+   "note": "Architecture hybride Mamba : cache très léger, idéal pour le long contexte."
+  },
+  {
+   "id": "gemma4-26",
+   "name": "Gemma 4 26B A4B",
+   "org": "Google",
+   "p": 25.2,
+   "a": 3.8,
+   "disp": "25B MoE · 3,8B actifs",
+   "kv": 0.06,
+   "q": 66,
+   "tags": [
+    "vision",
+    "multi",
+    "fr",
+    "reason"
+   ],
+   "lic": "Apache 2.0",
+   "hf": "google/gemma-4-26B-A4B-it",
+   "note": "Le point idéal à 16 Go : qualité d’un gros modèle, vitesse d’un petit."
+  },
+  {
+   "id": "qwen36-35",
+   "name": "Qwen3.6 35B-A3B",
+   "org": "Alibaba",
+   "p": 35,
+   "a": 3,
+   "disp": "35B MoE · 3B actifs",
+   "kv": 0.02,
+   "q": 68,
+   "tags": [
+    "code",
+    "reason",
+    "vision",
+    "multi"
+   ],
+   "lic": "Apache 2.0",
+   "hf": "Qwen/Qwen3.6-35B-A3B",
+   "note": "Très bon en code agentique, et tourne vite même en partie en RAM."
+  },
+  {
+   "id": "qwen38-27",
+   "name": "Qwen3.8 27B",
+   "org": "Alibaba",
+   "p": 27.5,
+   "a": 27.5,
+   "disp": "27B dense",
+   "kv": 0.065,
+   "q": 76,
+   "tags": [
+    "code",
+    "reason",
+    "vision",
+    "multi"
+   ],
+   "lic": "Apache 2.0",
+   "hf": "Qwen/Qwen3.8-27B",
+   "note": "Le plus fort des modèles « une carte 24 Go » (août 2026)."
+  },
+  {
+   "id": "gemma4-31",
+   "name": "Gemma 4 31B",
+   "org": "Google",
+   "p": 30.7,
+   "a": 30.7,
+   "disp": "31B dense",
+   "kv": 0.12,
+   "q": 72,
+   "tags": [
+    "vision",
+    "multi",
+    "fr",
+    "reason"
+   ],
+   "lic": "Apache 2.0",
+   "hf": "google/gemma-4-31B-it",
+   "note": "Le haut de gamme Gemma : qualité d’écriture et multilingue."
+  },
+  {
+   "id": "gptoss-120",
+   "name": "gpt-oss 120B",
+   "org": "OpenAI",
+   "p": 117,
+   "a": 5.1,
+   "disp": "117B MoE · 5,1B actifs",
+   "fixed": 65,
+   "fixedQ": "MXFP4 natif",
+   "kv": 0.07,
+   "q": 71,
+   "tags": [
+    "reason",
+    "code"
+   ],
+   "lic": "Apache 2.0",
+   "ollama": "gpt-oss:120b",
+   "hf": "openai/gpt-oss-120b",
+   "note": "Gros raisonneur qui reste rapide : très bon choix avec 64–128 Go."
+  },
+  {
+   "id": "mistral-small4",
+   "name": "Mistral Small 4",
+   "org": "Mistral AI",
+   "p": 119,
+   "a": 6.5,
+   "disp": "119B MoE · 6,5B actifs",
+   "kv": 0.08,
+   "q": 66,
+   "tags": [
+    "fr",
+    "vision",
+    "multi",
+    "reason"
+   ],
+   "lic": "Apache 2.0",
+   "hf": "mistralai/Mistral-Small-4-119B-2603",
+   "note": "Le meilleur Mistral open-weight utilisable en local, excellent en français."
+  },
+  {
+   "id": "qwen35-122",
+   "name": "Qwen3.5 122B-A10B",
+   "org": "Alibaba",
+   "p": 122,
+   "a": 10,
+   "disp": "122B MoE · 10B actifs",
+   "kv": 0.05,
+   "q": 79,
+   "tags": [
+    "code",
+    "reason",
+    "vision",
+    "multi"
+   ],
+   "lic": "Apache 2.0",
+   "hf": "Qwen/Qwen3.5-122B-A10B",
+   "note": "Niveau « gros modèle cloud » pour Mac 128 Go ou Strix Halo."
+  },
+  {
+   "id": "dsv4-flash",
+   "name": "DeepSeek V4 Flash",
+   "org": "DeepSeek",
+   "p": 284,
+   "a": 13,
+   "disp": "284B MoE · 13B actifs",
+   "kv": 0.02,
+   "q": 87,
+   "tags": [
+    "code",
+    "reason",
+    "multi"
+   ],
+   "lic": "MIT",
+   "hf": "unsloth/DeepSeek-V4-Flash-0731-GGUF",
+   "note": "Quasi-frontière en code et agents. Il faut au moins ~110 Go de mémoire."
+  },
+  {
+   "id": "qwen35-397",
+   "name": "Qwen3.5 397B-A17B",
+   "org": "Alibaba",
+   "p": 397,
+   "a": 17,
+   "disp": "397B MoE · 17B actifs",
+   "kv": 0.06,
+   "q": 86,
+   "tags": [
+    "code",
+    "reason",
+    "vision",
+    "multi"
+   ],
+   "lic": "Apache 2.0",
+   "hf": "Qwen/Qwen3.5-397B-A17B",
+   "note": "Le vaisseau amiral Qwen 3.5 : réservé aux Mac Studio 256–512 Go."
+  }
+ ],
+ "gpus": [
+  {
+   "group": "NVIDIA · bureau",
+   "vendor": "nv",
+   "items": [
+    {
+     "name": "RTX 3050 8 Go",
+     "vram": 8,
+     "bw": 224
+    },
+    {
+     "name": "RTX 3060 8 Go",
+     "vram": 8,
+     "bw": 240
+    },
+    {
+     "name": "RTX 3060 12 Go",
+     "vram": 12,
+     "bw": 360
+    },
+    {
+     "name": "RTX 3060 Ti",
+     "vram": 8,
+     "bw": 448
+    },
+    {
+     "name": "RTX 3070",
+     "vram": 8,
+     "bw": 448
+    },
+    {
+     "name": "RTX 3070 Ti",
+     "vram": 8,
+     "bw": 608
+    },
+    {
+     "name": "RTX 3080 10 Go",
+     "vram": 10,
+     "bw": 760
+    },
+    {
+     "name": "RTX 3080 12 Go",
+     "vram": 12,
+     "bw": 912
+    },
+    {
+     "name": "RTX 3080 Ti",
+     "vram": 12,
+     "bw": 912
+    },
+    {
+     "name": "RTX 3090",
+     "vram": 24,
+     "bw": 936
+    },
+    {
+     "name": "RTX 3090 Ti",
+     "vram": 24,
+     "bw": 1008
+    },
+    {
+     "name": "RTX 4060",
+     "vram": 8,
+     "bw": 272
+    },
+    {
+     "name": "RTX 4060 Ti 8 Go",
+     "vram": 8,
+     "bw": 288
+    },
+    {
+     "name": "RTX 4060 Ti 16 Go",
+     "vram": 16,
+     "bw": 288
+    },
+    {
+     "name": "RTX 4070",
+     "vram": 12,
+     "bw": 504
+    },
+    {
+     "name": "RTX 4070 Super",
+     "vram": 12,
+     "bw": 504
+    },
+    {
+     "name": "RTX 4070 Ti",
+     "vram": 12,
+     "bw": 504
+    },
+    {
+     "name": "RTX 4070 Ti Super",
+     "vram": 16,
+     "bw": 672
+    },
+    {
+     "name": "RTX 4080",
+     "vram": 16,
+     "bw": 717
+    },
+    {
+     "name": "RTX 4080 Super",
+     "vram": 16,
+     "bw": 736
+    },
+    {
+     "name": "RTX 4090",
+     "vram": 24,
+     "bw": 1008
+    },
+    {
+     "name": "RTX 5060",
+     "vram": 8,
+     "bw": 448
+    },
+    {
+     "name": "RTX 5060 Ti 8 Go",
+     "vram": 8,
+     "bw": 448
+    },
+    {
+     "name": "RTX 5060 Ti 16 Go",
+     "vram": 16,
+     "bw": 448
+    },
+    {
+     "name": "RTX 5070",
+     "vram": 12,
+     "bw": 672
+    },
+    {
+     "name": "RTX 5070 Ti",
+     "vram": 16,
+     "bw": 896
+    },
+    {
+     "name": "RTX 5080",
+     "vram": 16,
+     "bw": 960
+    },
+    {
+     "name": "RTX 5090",
+     "vram": 32,
+     "bw": 1792
+    }
+   ]
+  },
+  {
+   "group": "NVIDIA · portable",
+   "vendor": "nv",
+   "items": [
+    {
+     "name": "RTX 4050 portable",
+     "vram": 6,
+     "bw": 192
+    },
+    {
+     "name": "RTX 4060 portable",
+     "vram": 8,
+     "bw": 256
+    },
+    {
+     "name": "RTX 4070 portable",
+     "vram": 8,
+     "bw": 256
+    },
+    {
+     "name": "RTX 4080 portable",
+     "vram": 12,
+     "bw": 432
+    },
+    {
+     "name": "RTX 4090 portable",
+     "vram": 16,
+     "bw": 576
+    },
+    {
+     "name": "RTX 5060 portable",
+     "vram": 8,
+     "bw": 384
+    },
+    {
+     "name": "RTX 5070 portable",
+     "vram": 8,
+     "bw": 384
+    },
+    {
+     "name": "RTX 5070 Ti portable",
+     "vram": 12,
+     "bw": 672
+    },
+    {
+     "name": "RTX 5080 portable",
+     "vram": 16,
+     "bw": 896
+    },
+    {
+     "name": "RTX 5090 portable",
+     "vram": 24,
+     "bw": 896
+    }
+   ]
+  },
+  {
+   "group": "AMD Radeon",
+   "vendor": "amd",
+   "items": [
+    {
+     "name": "RX 6600",
+     "vram": 8,
+     "bw": 224
+    },
+    {
+     "name": "RX 6700 XT",
+     "vram": 12,
+     "bw": 384
+    },
+    {
+     "name": "RX 6800",
+     "vram": 16,
+     "bw": 512
+    },
+    {
+     "name": "RX 6800 XT",
+     "vram": 16,
+     "bw": 512
+    },
+    {
+     "name": "RX 6900 XT",
+     "vram": 16,
+     "bw": 512
+    },
+    {
+     "name": "RX 7600",
+     "vram": 8,
+     "bw": 288
+    },
+    {
+     "name": "RX 7600 XT",
+     "vram": 16,
+     "bw": 288
+    },
+    {
+     "name": "RX 7700 XT",
+     "vram": 12,
+     "bw": 432
+    },
+    {
+     "name": "RX 7800 XT",
+     "vram": 16,
+     "bw": 624
+    },
+    {
+     "name": "RX 7900 GRE",
+     "vram": 16,
+     "bw": 576
+    },
+    {
+     "name": "RX 7900 XT",
+     "vram": 20,
+     "bw": 800
+    },
+    {
+     "name": "RX 7900 XTX",
+     "vram": 24,
+     "bw": 960
+    },
+    {
+     "name": "RX 9060 XT 16 Go",
+     "vram": 16,
+     "bw": 322
+    },
+    {
+     "name": "RX 9070",
+     "vram": 16,
+     "bw": 640
+    },
+    {
+     "name": "RX 9070 XT",
+     "vram": 16,
+     "bw": 640
+    }
+   ]
+  },
+  {
+   "group": "Intel Arc",
+   "vendor": "intel",
+   "items": [
+    {
+     "name": "Arc A750",
+     "vram": 8,
+     "bw": 512
+    },
+    {
+     "name": "Arc A770 16 Go",
+     "vram": 16,
+     "bw": 560
+    },
+    {
+     "name": "Arc B570",
+     "vram": 10,
+     "bw": 380
+    },
+    {
+     "name": "Arc B580",
+     "vram": 12,
+     "bw": 456
+    }
+   ]
+  },
+  {
+   "group": "Station de travail",
+   "vendor": "nv",
+   "items": [
+    {
+     "name": "RTX A6000 / 6000 Ada",
+     "vram": 48,
+     "bw": 960
+    },
+    {
+     "name": "RTX PRO 6000 Blackwell",
+     "vram": 96,
+     "bw": 1792
+    }
+   ]
+  },
+  {
+   "group": "Autre",
+   "vendor": "other",
+   "items": [
+    {
+     "name": "Autre carte (saisir la VRAM)",
+     "vram": 0,
+     "bw": 0
+    }
+   ]
+  }
+ ],
+ "macs": [
+  {
+   "name": "M1",
+   "bw": 68
+  },
+  {
+   "name": "M1 Pro",
+   "bw": 200
+  },
+  {
+   "name": "M1 Max",
+   "bw": 400
+  },
+  {
+   "name": "M1 Ultra",
+   "bw": 800
+  },
+  {
+   "name": "M2",
+   "bw": 100
+  },
+  {
+   "name": "M2 Pro",
+   "bw": 200
+  },
+  {
+   "name": "M2 Max",
+   "bw": 400
+  },
+  {
+   "name": "M2 Ultra",
+   "bw": 800
+  },
+  {
+   "name": "M3",
+   "bw": 100
+  },
+  {
+   "name": "M3 Pro",
+   "bw": 150
+  },
+  {
+   "name": "M3 Max",
+   "bw": 400
+  },
+  {
+   "name": "M3 Ultra",
+   "bw": 819
+  },
+  {
+   "name": "M4",
+   "bw": 120
+  },
+  {
+   "name": "M4 Pro",
+   "bw": 273
+  },
+  {
+   "name": "M4 Max",
+   "bw": 546
+  },
+  {
+   "name": "M5",
+   "bw": 153
+  }
+ ],
+ "unified": [
+  {
+   "name": "AMD Ryzen AI Max+ 395 (Strix Halo)",
+   "bw": 256,
+   "usable": 0.75
+  },
+  {
+   "name": "NVIDIA DGX Spark",
+   "bw": 273,
+   "usable": 0.85
+  }
+ ],
+ "quants": [
+  {
+   "id": "Q8_0",
+   "bpw": 8.5,
+   "mult": 1
+  },
+  {
+   "id": "Q6_K",
+   "bpw": 6.6,
+   "mult": 0.995
+  },
+  {
+   "id": "Q5_K_M",
+   "bpw": 5.7,
+   "mult": 0.985
+  },
+  {
+   "id": "Q4_K_M",
+   "bpw": 4.85,
+   "mult": 0.965
+  },
+  {
+   "id": "Q3_K_M",
+   "bpw": 3.9,
+   "mult": 0.9
+  },
+  {
+   "id": "IQ2_M",
+   "bpw": 2.7,
+   "mult": 0.82,
+   "bigOnly": true
+  }
+ ]
+}

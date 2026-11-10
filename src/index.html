@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--CSP--><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:"><!--/CSP-->
+<title>Quel LLM pour mon PC</title>
+<!--CATALOG-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout : fiche technique — panneau de config à gauche, résultats classés à droite, jauges mémoire GPU/RAM par modèle */
+:root{
+  --bg:#f2f4f7;
+  --surface:#ffffff;
+  --ink:#16202c;
+  --muted:#5b6878;
+  --line:#d9dee6;
+  --accent:#2453c9;
+  --accent-soft:#e3eafb;
+  --ram:#8a96a8;
+  --ok:#1a7f4b; --ok-soft:#e1f3e9;
+  --warn:#a86300; --warn-soft:#fbf0dc;
+  --bad:#b4302b; --bad-soft:#fae4e2;
+  --f-display:"IBM Plex Sans Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f141b; --surface:#171e28; --ink:#e6ebf2; --muted:#9aa6b6; --line:#2a3442;
+    --accent:#7d9cf5; --accent-soft:#1f2b48; --ram:#6b7789;
+    --ok:#5cc98d; --ok-soft:#163223; --warn:#e6a94a; --warn-soft:#3a2a10; --bad:#f07a73; --bad-soft:#3c1a19;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f141b; --surface:#171e28; --ink:#e6ebf2; --muted:#9aa6b6; --line:#2a3442;
+  --accent:#7d9cf5; --accent-soft:#1f2b48; --ram:#6b7789;
+  --ok:#5cc98d; --ok-soft:#163223; --warn:#e6a94a; --warn-soft:#3a2a10; --bad:#f07a73; --bad-soft:#3c1a19;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.15}
+.wrap{max-width:1240px;margin:0 auto;padding:28px 20px 60px}
+header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 24px;margin-bottom:22px;border-bottom:2px solid var(--ink);padding-bottom:14px}
+header.top h1{font-size:34px;font-weight:700;letter-spacing:-.01em}
+header.top p{margin:4px 0 0;color:var(--muted);max-width:62ch}
+.stamp{font-family:var(--f-mono);font-size:12px;color:var(--muted);border:1px solid var(--line);padding:4px 8px;border-radius:4px;background:var(--surface)}
+.grid{display:grid;grid-template-columns:340px 1fr;gap:24px;align-items:start}
+@media (max-width:900px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:18px;position:sticky;top:16px;display:flex;flex-direction:column;gap:16px}
+@media (max-width:900px){.panel{position:static}}
+.panel h2{font-size:18px;font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.field{display:flex;flex-direction:column;gap:6px}
+.field>label,.field>.lbl{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+select,input[type=number]{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:8px 10px;width:100%}
+select:focus-visible,input:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{font:inherit;font-size:13px;padding:6px 10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:6px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+:root[data-theme="dark"] .seg button[aria-pressed="true"]{color:#0f141b}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .seg button[aria-pressed="true"]{color:#0f141b}}
+.seg button:hover{border-color:var(--accent)}
+.btn-ghost{font:inherit;font-size:13px;background:none;border:1px dashed var(--accent);color:var(--accent);padding:7px 10px;border-radius:6px;cursor:pointer;text-align:left}
+.btn-ghost:hover{background:var(--accent-soft)}
+.hint{font-size:12.5px;color:var(--muted);margin:0}
+.hidden{display:none !important}
+
+.results{display:flex;flex-direction:column;gap:22px;min-width:0}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.tile .k{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
+.tile .v{font-family:var(--f-mono);font-size:22px;font-weight:600;font-variant-numeric:tabular-nums;margin-top:2px}
+.tile .v small{font-size:13px;color:var(--muted);font-weight:500}
+.profile{background:var(--accent-soft);border-left:4px solid var(--accent);padding:12px 16px;border-radius:0 8px 8px 0}
+.profile strong{font-family:var(--f-display);font-size:17px}
+.profile p{margin:4px 0 0;max-width:75ch}
+
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.sec-h h2{font-size:22px;font-weight:600}
+.sec-h span{font-size:13px;color:var(--muted)}
+
+.picks{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:10px;position:relative}
+.card.first{border:2px solid var(--accent)}
+.rank{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.card.first .rank{color:var(--accent);font-weight:600}
+.card h3{font-size:21px;font-weight:600}
+.card .org{font-size:13px;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.chip.ok{background:var(--ok-soft);color:var(--ok);border-color:transparent}
+.chip.warn{background:var(--warn-soft);color:var(--warn);border-color:transparent}
+.chip.bad{background:var(--bad-soft);color:var(--bad);border-color:transparent}
+.chip.acc{background:var(--accent-soft);color:var(--accent);border-color:transparent}
+.specs{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font-size:13.5px;margin:0}
+.specs dt{color:var(--muted)}
+.specs dd{margin:0;font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.why{font-size:13.5px;margin:0}
+.cmd{display:flex;gap:6px;align-items:stretch}
+.cmd code{flex:1;min-width:0;font-family:var(--f-mono);font-size:12.5px;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:6px 8px;overflow-x:auto;white-space:nowrap}
+.cmd button{font:inherit;font-size:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:6px;padding:0 10px;cursor:pointer}
+.cmd button:hover{border-color:var(--accent);color:var(--accent)}
+
+.gauge{position:relative;height:14px;border-radius:4px;background:var(--bg);border:1px solid var(--line);overflow:hidden}
+.gauge .zgpu{position:absolute;top:0;bottom:0;left:0;background:var(--accent-soft);border-right:2px solid var(--accent)}
+.gauge .zram{position:absolute;top:0;bottom:0;background:repeating-linear-gradient(135deg,transparent 0 4px,color-mix(in srgb,var(--ram) 22%,transparent) 4px 6px);border-right:2px solid var(--ram)}
+.gauge .need{position:absolute;top:3px;bottom:3px;left:0;border-radius:2px}
+.gauge-legend{display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:11px;color:var(--muted);margin-top:3px;gap:8px}
+
+.tablewrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:8px}
+table{border-collapse:collapse;width:100%;min-width:860px;font-size:13.5px}
+th,td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:middle}
+th{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;background:var(--surface);position:sticky;top:0}
+td.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+tr.nofit td{color:var(--muted)}
+tr:last-child td{border-bottom:none}
+td:first-child{min-width:250px}
+td:nth-child(2){white-space:nowrap}
+td .mcell{display:flex;align-items:center;gap:10px}
+.cmd code{scrollbar-width:thin}
+td .mname{font-weight:600;color:var(--ink)}
+td .msub{font-size:12px;color:var(--muted)}
+.stripe{display:inline-block;width:4px;height:28px;border-radius:2px;vertical-align:middle;margin-right:8px}
+.toggle{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.method{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px 18px;font-size:13.5px}
+.method h2{font-size:18px;font-weight:600;margin-bottom:6px}
+.method p,.method li{max-width:80ch;color:var(--muted)}
+.method ul{margin:6px 0 0;padding-left:18px}
+.method code{font-family:var(--f-mono);font-size:12.5px}
+.detect-msg{font-size:12.5px;margin:0}
+@media (prefers-reduced-motion: no-preference){.card,.tile{transition:border-color .15s}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Quel LLM pour mon PC</h1>
+      <p>Indique ta configuration : la page calcule ce qui tient en mémoire, estime la vitesse de génération et classe les modèles open-weight les plus intéressants pour ta machine.</p>
+    </div>
+    <span class="stamp" id="stamp">Chargement de la liste…</span>
+  </header>
+
+  <div class="grid">
+    <!-- CONFIG -->
+    <form class="panel" id="cfg" autocomplete="off">
+      <h2>Ta machine</h2>
+
+      <div class="field">
+        <span class="lbl" id="lbl-plat">Type de machine</span>
+        <div class="seg" role="group" aria-labelledby="lbl-plat" data-name="platform">
+          <button type="button" data-v="gpu" aria-pressed="true">PC + carte graphique</button>
+          <button type="button" data-v="mac" aria-pressed="false">Mac Apple Silicon</button>
+          <button type="button" data-v="unified" aria-pressed="false">Mini-PC mémoire unifiée</button>
+          <button type="button" data-v="cpu" aria-pressed="false">Sans carte graphique</button>
+        </div>
+      </div>
+
+      <button type="button" class="btn-ghost" id="detect">Détecter ma configuration</button>
+      <p class="detect-msg hint" id="detect-msg" aria-live="polite"></p>
+
+      <div class="field" data-for="gpu">
+        <label for="gpu">Carte graphique</label>
+        <select id="gpu"></select>
+      </div>
+      <div class="row2" data-for="gpu">
+        <div class="field">
+          <label for="vram">VRAM (Go)</label>
+          <input type="number" id="vram" min="2" max="192" step="1" value="12">
+        </div>
+        <div class="field">
+          <label for="ngpu">Nombre de GPU</label>
+          <select id="ngpu"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select>
+        </div>
+      </div>
+
+      <div class="field hidden" data-for="mac">
+        <label for="mac">Puce</label>
+        <select id="mac"></select>
+      </div>
+      <div class="field hidden" data-for="unified">
+        <label for="uni">Appareil</label>
+        <select id="uni"></select>
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label for="ram" id="ram-lbl">RAM système</label>
+          <select id="ram"></select>
+        </div>
+        <div class="field" data-for="gpu cpu">
+          <label for="ddr">Type de RAM</label>
+          <select id="ddr">
+            <option value="45">DDR4</option>
+            <option value="75" selected>DDR5</option>
+            <option value="110">DDR5 rapide / 4 canaux</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <span class="lbl" id="lbl-use">Usage (plusieurs choix)</span>
+        <div class="seg" role="group" aria-labelledby="lbl-use" data-name="usage" data-multi="1">
+          <button type="button" data-v="general" aria-pressed="true">Discussion</button>
+          <button type="button" data-v="code" aria-pressed="false">Code</button>
+          <button type="button" data-v="reason" aria-pressed="false">Raisonnement</button>
+          <button type="button" data-v="vision" aria-pressed="false">Images</button>
+          <button type="button" data-v="fr" aria-pressed="false">Français</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <span class="lbl" id="lbl-ctx">Contexte visé</span>
+        <div class="seg" role="group" aria-labelledby="lbl-ctx" data-name="ctx">
+          <button type="button" data-v="8" aria-pressed="true">8K · discussion</button>
+          <button type="button" data-v="32" aria-pressed="false">32K · documents</button>
+          <button type="button" data-v="128" aria-pressed="false">128K · gros projets</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <span class="lbl" id="lbl-prio">Priorité</span>
+        <div class="seg" role="group" aria-labelledby="lbl-prio" data-name="prio">
+          <button type="button" data-v="qualite" aria-pressed="false">Qualité max</button>
+          <button type="button" data-v="equilibre" aria-pressed="true">Équilibre</button>
+          <button type="button" data-v="vitesse" aria-pressed="false">Vitesse</button>
+        </div>
+      </div>
+      <p class="hint">Les chiffres sont des estimations : la vitesse réelle dépend du logiciel (Ollama, LM Studio, llama.cpp), des pilotes et de la longueur du prompt.</p>
+    </form>
+
+    <!-- RESULTATS -->
+    <main class="results" id="out" aria-live="polite"><p class="hint">Chargement…</p></main>
+  </div>
+</div>
+
+<script>
+/* ---------- Catalogue (chargé depuis models.json : en ligne dans l'app, intégré dans la version web) ---------- */
+let GPUS=[], GPU_LIST=[], MACS=[], UNIS=[], MODELS=[], QUANTS=[], CAT_META={};
+const RAMS = [8,12,16,24,32,36,48,64,96,128,192,256,512];
+function loadCatalog(cat){
+  CAT_META = {updated:cat.updated};
+  GPUS = cat.gpus; MACS = cat.macs; UNIS = cat.unified; MODELS = cat.models; QUANTS = cat.quants;
+  GPU_LIST = [];
+  GPUS.forEach(gr=>gr.items.forEach(it=>GPU_LIST.push({name:it.name,vram:it.vram,bw:it.bw,vendor:gr.vendor,group:gr.group})));
+}
+const USE_LABEL = {general:"Discussion",code:"Code",reason:"Raisonnement",vision:"Images",fr:"Français",multi:"Multilingue"};
+
+/* ---------- État ---------- */
+const S = {platform:"gpu", usage:new Set(["general"]), ctx:8, prio:"equilibre", showAll:false};
+const $ = id => document.getElementById(id);
+
+function fillSelects(){
+  const g = $("gpu"); g.innerHTML="";
+  GPUS.forEach(gr=>{
+    const og = document.createElement("optgroup"); og.label = gr.group;
+    gr.items.forEach(it=>{const o=document.createElement("option");o.value=it.name;o.textContent=it.name+(it.vram?" · "+it.vram+" Go":"");og.appendChild(o);});
+    g.appendChild(og);
+  });
+  if(GPU_LIST.some(x=>x.name==="RTX 4070")) g.value = "RTX 4070";
+  $("mac").innerHTML=""; MACS.forEach(m=>{const o=document.createElement("option");o.value=m.name;o.textContent=m.name+" · "+m.bw+" Go/s";$("mac").appendChild(o);});
+  $("mac").value = MACS.some(m=>m.name==="M4 Pro") ? "M4 Pro" : MACS[0].name;
+  $("uni").innerHTML=""; UNIS.forEach(u=>{const o=document.createElement("option");o.value=u.name;o.textContent=u.name;$("uni").appendChild(o);});
+  $("ram").innerHTML=""; RAMS.forEach(r=>{const o=document.createElement("option");o.value=r;o.textContent=r+" Go";$("ram").appendChild(o);});
+  $("ram").value="32";
+}
+
+/* ---------- Calculs ---------- */
+function machine(){
+  const ram = +$("ram").value, cpuBW = +$("ddr").value;
+  if(S.platform==="gpu"){
+    const gpu = GPU_LIST.find(x=>x.name===$("gpu").value) || GPU_LIST[0];
+    const n = +$("ngpu").value, vram = Math.max(2, +$("vram").value || 8);
+    const bw = gpu.bw || Math.round(vram*38+120);
+    const eff = gpu.vendor==="nv" ? .55 : .45;
+    return {kind:"gpu", label:(n>1?n+" × ":"")+gpu.name.replace("Autre carte (saisir la VRAM)","GPU "+vram+" Go"), vendor:gpu.vendor,
+      gpu: Math.max(0, vram*n - 0.8), ram: Math.max(0,(ram-6)*0.9), gpuBW:bw, cpuBW, effG:eff, effC:.35, totalRam:ram, vram:vram*n};
+  }
+  if(S.platform==="mac"){
+    const m = MACS.find(x=>x.name===$("mac").value) || MACS[0];
+    const frac = ram>=64 ? .75 : .67;
+    return {kind:"mac", label:"Mac "+m.name+" · "+ram+" Go", gpu: ram*frac-0.5, ram:0, gpuBW:m.bw, cpuBW:m.bw, effG:.6, effC:.6, totalRam:ram};
+  }
+  if(S.platform==="unified"){
+    const u = UNIS.find(x=>x.name===$("uni").value) || UNIS[0];
+    return {kind:"unified", label:u.name+" · "+ram+" Go", gpu: ram*u.usable-1, ram:0, gpuBW:u.bw, cpuBW:u.bw, effG:.55, effC:.55, totalRam:ram};
+  }
+  return {kind:"cpu", label:"Processeur seul · "+ram+" Go", gpu:0, ram:Math.max(0,(ram-5)*0.9), gpuBW:0, cpuBW, effG:0, effC:.5, totalRam:ram};
+}
+
+function evalOpt(m, q, M){
+  const weights = m.fixed ? m.fixed : m.p*q.bpw/8;
+  const kv = m.kv*S.ctx;
+  const need = weights + kv + 0.6;
+  const bytes = m.fixed ? m.a*4.25/8 : m.a*q.bpw/8;
+  let mode, tps, onGpu=0, onRam=0;
+  if(M.gpu>0 && need <= M.gpu){
+    mode="gpu"; tps = M.effG*M.gpuBW/bytes; onGpu=need;
+  } else if(need <= M.gpu + M.ram && M.ram>0){
+    const room = Math.max(0, M.gpu - kv - 0.6);
+    const f = M.gpu>0 ? Math.min(1, room/weights) : 0;
+    const t = (M.gpu>0 ? f*bytes/(M.effG*M.gpuBW) : 0) + (1-f)*bytes/(M.effC*M.cpuBW);
+    tps = 1/t; mode = M.gpu>0 ? "hybrid" : "cpu";
+    onGpu = M.gpu>0 ? Math.min(M.gpu, room+kv+0.6) : 0; onRam = need-onGpu;
+  } else { mode="nofit"; tps=0; }
+  return {q, weights, kv, need, mode, tps, onGpu, onRam};
+}
+
+function speedUtil(t){ if(t<2) return -40; return Math.max(-40, Math.min(5, 7*Math.log2(t/15))); }
+const WQ = {qualite:.4, equilibre:1, vitesse:2.5};
+const WS = {qualite:.8, equilibre:1.5, vitesse:3};
+
+function bestFor(m, M){
+  const qs = m.fixed ? [{id:m.fixedQ,bpw:4.25,mult:.985}] : QUANTS.filter(q=>!q.bigOnly || m.p>=100);
+  let best=null, smallest=null;
+  qs.forEach(q=>{
+    const o = evalOpt(m,q,M);
+    if(!smallest || o.need<smallest.need) smallest=o;
+    if(o.mode==="nofit") return;
+    const val = q.mult*100 + speedUtil(o.tps)*WQ[S.prio];
+    if(!best || val>best.val) best = Object.assign(o,{val});
+  });
+  return best || Object.assign(smallest,{mode:"nofit"});
+}
+
+function bonus(m){
+  let b=0; const notes=[];
+  S.usage.forEach(u=>{
+    if(u==="general") return;
+    if(u==="vision" && !m.tags.includes("vision")){ b-=25; notes.push("pas de vision"); return; }
+    if(m.tags.includes(u)) b+=5;
+    else if(u==="fr" && m.tags.includes("multi")) b+=2;
+  });
+  return {b,notes};
+}
+
+function speedLabel(t){
+  if(t>=35) return ["Très fluide","ok"]; if(t>=15) return ["Fluide","ok"]; if(t>=7) return ["Correct","acc"];
+  if(t>=3) return ["Lent","warn"]; return ["Très lent","bad"];
+}
+const fmt = (n,d=1)=> n.toLocaleString("fr-FR",{maximumFractionDigits:d,minimumFractionDigits:d});
+
+function compute(){
+  const M = machine();
+  const rows = MODELS.map(m=>{
+    const o = bestFor(m,M); const bn = bonus(m);
+    const score = o.mode==="nofit" ? -999 : m.q*o.q.mult + bn.b + speedUtil(o.tps)*WS[S.prio];
+    return {m,o,score,bn};
+  });
+  rows.sort((a,b)=> b.score-a.score || a.o.need-b.o.need);
+  return {M,rows};
+}
+
+/* ---------- Rendu ---------- */
+function profileText(M){
+  const mem = M.kind==="gpu" ? M.gpu : M.kind==="cpu" ? M.ram : M.gpu;
+  const tot = M.gpu + M.ram;
+  if(M.kind==="cpu") return ["Machine sans GPU dédié","Tout passe par le processeur et la RAM : privilégie les petits modèles (2B–9B) et les MoE à peu de paramètres actifs, qui restent utilisables."];
+  if(M.kind!=="gpu"){
+    if(mem>=200) return ["Station IA haut de gamme","Mémoire unifiée énorme : les modèles de classe frontière (DeepSeek V4 Flash, Qwen3.5 397B) sont à ta portée."];
+    if(mem>=80) return ["Très grosse mémoire unifiée","Les MoE de 100–120B (gpt-oss 120B, Qwen3.5 122B, Mistral Small 4) tiennent entièrement en mémoire."];
+    if(mem>=40) return ["Mémoire unifiée confortable","Les modèles 27–35B tournent sans compromis, en bonne quantification."];
+    if(mem>=18) return ["Mémoire unifiée moyenne","Les MoE de 20–26B et les modèles 9–14B sont le bon choix."];
+    return ["Mémoire unifiée limitée","Reste sur les modèles 2B–9B en Q4 pour garder de la marge pour macOS et tes applications."];
+  }
+  if(M.gpu>=40) return ["GPU très haut de gamme","Les modèles denses 27–31B tiennent en haute qualité, et les gros MoE passent en hybride."];
+  if(M.gpu>=22) return ["GPU 24 Go : le point idéal","Les meilleurs modèles « une carte » (Qwen3.8 27B, Gemma 4 31B) tiennent entièrement dans la VRAM."];
+  if(M.gpu>=14) return ["GPU 16 Go","Gemma 4 26B A4B et gpt-oss 20B tiennent dans la carte ; les MoE 30–35B passent en hybride."];
+  if(M.gpu>=10) return ["GPU milieu de gamme","Les modèles 9–12B tiennent dans la carte. "+(tot>=30?"Avec ta RAM, les MoE 26–35B tournent bien en hybride GPU + RAM.":"Ajouter de la RAM permettrait les MoE plus gros en hybride.")];
+  if(M.gpu>=6) return ["GPU 8 Go","Qwen3.5 9B en Q4 est la référence. "+(tot>=28?"Les MoE (gpt-oss 20B, Qwen3.6 35B-A3B) restent jouables en hybride.":"")];
+  return ["Petit GPU","Les modèles 2B–4B tiennent dans la carte ; au-delà, la RAM prend le relais."];
+}
+
+function gaugeHTML(o, M){
+  const cap = M.gpu + M.ram;
+  const scale = Math.max(o.need, cap, 1)*1.04;
+  const pct = v => (v/scale*100).toFixed(2)+"%";
+  const col = o.mode==="gpu" ? "var(--ok)" : o.mode==="nofit" ? "var(--bad)" : "var(--warn)";
+  const zg = M.gpu>0 ? `<div class="zgpu" style="width:${pct(M.gpu)}"></div>` : "";
+  const zr = M.ram>0 ? `<div class="zram" style="left:${pct(M.gpu)};width:${pct(M.ram)}"></div>` : "";
+  const gl = M.kind==="gpu" ? "VRAM" : (M.kind==="cpu" ? "" : "mém. unifiée");
+  return `<div class="gauge" role="img" aria-label="Besoin ${fmt(o.need)} Go sur ${fmt(cap)} Go disponibles">${zg}${zr}<div class="need" style="width:${pct(Math.min(o.need,scale))};background:${col};opacity:.85"></div></div>
+  <div class="gauge-legend"><span>besoin ${fmt(o.need)} Go</span><span>${M.gpu>0?gl+" "+fmt(M.gpu,0):""}${M.ram>0?(M.gpu>0?" + ":"")+"RAM "+fmt(M.ram,0):""} Go</span></div>`;
+}
+
+function whyText(r, M){
+  const o=r.o;
+  if(o.mode==="gpu") return M.kind==="gpu" ? `Tient entièrement dans la VRAM (${fmt(o.need)} Go sur ${fmt(M.gpu,0)} Go utilisables).` : `Tient en mémoire unifiée (${fmt(o.need)} Go sur ${fmt(M.gpu,0)} Go utilisables).`;
+  if(o.mode==="hybrid") return `${fmt(o.onGpu)} Go sur le GPU + ${fmt(o.onRam)} Go en RAM. ${r.m.a<r.m.p/3?"MoE : peu de paramètres actifs, donc le déchargement en RAM coûte peu.":"Modèle dense : la partie en RAM ralentit nettement."}`;
+  if(o.mode==="cpu") return `Tourne en RAM sur le processeur (${fmt(o.need)} Go).`;
+  return `Il faudrait environ ${fmt(o.need,0)} Go de mémoire au minimum.`;
+}
+
+function cmdOf(m){ return m.ollama ? "ollama run "+m.ollama : m.hf; }
+
+function cardHTML(r,i,M){
+  const {m,o}=r; const [sl,sc]=speedLabel(o.tps);
+  const modeChip = o.mode==="gpu" ? `<span class="chip ok">${M.kind==="gpu"?"100 % GPU":"En mémoire"}</span>` : o.mode==="hybrid" ? `<span class="chip warn">GPU + RAM</span>` : `<span class="chip warn">CPU + RAM</span>`;
+  const tags = m.tags.filter(t=>USE_LABEL[t]).map(t=>`<span class="chip${S.usage.has(t)?" acc":""}">${USE_LABEL[t]}</span>`).join("");
+  const label = i===0 ? "N° 1 · meilleur choix" : "N° "+(i+1);
+  return `<article class="card${i===0?" first":""}">
+    <div class="rank">${label}</div>
+    <div><h3>${m.name}</h3><div class="org">${m.org} · ${m.disp} · ${m.lic}</div></div>
+    <div class="chips">${modeChip}<span class="chip ${sc}">${sl}</span>${tags}</div>
+    <dl class="specs">
+      <dt>Quantification</dt><dd>${o.q.id}</dd>
+      <dt>Vitesse estimée</dt><dd>≈ ${fmt(o.tps,0)} tokens/s</dd>
+      <dt>Mémoire</dt><dd>${fmt(o.need)} Go (fichier ${fmt(o.weights)} Go)</dd>
+    </dl>
+    ${gaugeHTML(o,M)}
+    <p class="why">${m.note} ${whyText(r,M)}</p>
+    <div class="cmd"><code>${cmdOf(m)}</code><button type="button" data-copy="${cmdOf(m)}">Copier</button></div>
+  </article>`;
+}
+
+function rowHTML(r,M){
+  const {m,o}=r;
+  const nofit = o.mode==="nofit";
+  const [sl,sc] = nofit ? ["Trop gros","bad"] : speedLabel(o.tps);
+  const modeTxt = {gpu: M.kind==="gpu"?"100 % GPU":"En mémoire", hybrid:"GPU + RAM", cpu:"CPU + RAM", nofit:"Ne tient pas"}[o.mode];
+  const stripe = {gpu:"var(--ok)",hybrid:"var(--warn)",cpu:"var(--warn)",nofit:"var(--bad)"}[o.mode];
+  const notes = r.bn.notes.length ? ` · <span style="color:var(--bad)">${r.bn.notes.join(", ")}</span>` : "";
+  return `<tr class="${nofit?"nofit":""}">
+    <td><div class="mcell"><span class="stripe" style="background:${stripe};margin:0;flex:none"></span><span><span class="mname">${m.name}</span><br><span class="msub">${m.org} · ${m.disp}${notes}</span></span></div></td>
+    <td>${modeTxt}</td>
+    <td class="num">${nofit?"—":o.q.id}</td>
+    <td class="num">${fmt(o.need)} Go</td>
+    <td class="num">${nofit?"—":"≈ "+fmt(o.tps,0)+" t/s"}</td>
+    <td><span class="chip ${sc}">${sl}</span></td>
+    <td class="num" style="font-size:12px">${cmdOf(m)}</td>
+  </tr>`;
+}
+
+function render(){
+  const {M,rows} = compute();
+  const fits = rows.filter(r=>r.o.mode!=="nofit");
+  const usable = fits.filter(r=>r.o.tps>=4 && !r.bn.notes.length);
+  const picks = (usable.length>=3?usable:fits).slice(0,3);
+  const [pt,pd] = profileText(M);
+  const tileMem = M.kind==="gpu" ? ["VRAM utilisable",M.gpu] : M.kind==="cpu" ? ["RAM utilisable",M.ram] : ["Mémoire pour l’IA",M.gpu];
+  const tiles = [
+    `<div class="tile"><div class="k">${tileMem[0]}</div><div class="v">${fmt(tileMem[1])} <small>Go</small></div></div>`,
+    M.kind==="gpu" ? `<div class="tile"><div class="k">RAM pour déchargement</div><div class="v">${fmt(M.ram,0)} <small>Go</small></div></div>` : "",
+    `<div class="tile"><div class="k">Bande passante</div><div class="v">${M.kind==="cpu"?M.cpuBW:M.gpuBW} <small>Go/s</small></div></div>`,
+    `<div class="tile"><div class="k">Modèles utilisables</div><div class="v">${fits.length} <small>/ ${rows.length}</small></div></div>`
+  ].join("");
+
+  const vendorNote = M.kind==="gpu" && M.vendor==="amd" ? `<p class="hint">Radeon : utilise LM Studio ou Ollama avec ROCm (Linux/Windows) ou le backend Vulkan ; les vitesses sont un peu inférieures à NVIDIA à bande passante égale.</p>` :
+                     M.kind==="gpu" && M.vendor==="intel" ? `<p class="hint">Intel Arc : passe par le backend Vulkan ou SYCL de llama.cpp (LM Studio le gère) ; prévois des vitesses un peu plus basses que l’estimation.</p>` :
+                     M.kind==="mac" ? `<p class="hint">Sur Mac, LM Studio avec les versions MLX des modèles est généralement le plus rapide.</p>` : "";
+
+  const table = rows.filter(r=>S.showAll || r.o.mode!=="nofit").map(r=>rowHTML(r,M)).join("");
+  const hiddenCount = rows.length - fits.length;
+
+  $("out").innerHTML = `
+    <section class="tiles">${tiles}</section>
+    <div class="profile"><strong>${pt}</strong><p>${pd}</p>${vendorNote}</div>
+
+    <section style="display:flex;flex-direction:column;gap:12px">
+      <div class="sec-h"><h2>Les plus intéressants pour ${M.label}</h2><span>Contexte ${S.ctx}K · priorité ${ {qualite:"qualité",equilibre:"équilibre",vitesse:"vitesse"}[S.prio] }</span></div>
+      ${picks.length ? `<div class="picks">${picks.map((r,i)=>cardHTML(r,i,M)).join("")}</div>` : `<p>Aucun modèle ne tient avec cette configuration : augmente la RAM ou réduis le contexte.</p>`}
+    </section>
+
+    <section style="display:flex;flex-direction:column;gap:10px">
+      <div class="sec-h"><h2>Tous les modèles, classés</h2>
+        <label class="toggle"><input type="checkbox" id="showall" ${S.showAll?"checked":""}> Afficher aussi les ${hiddenCount} modèles trop gros</label></div>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Modèle</th><th>Où il tourne</th><th>Quant.</th><th>Mémoire</th><th>Vitesse</th><th>Ressenti</th><th>Commande / dépôt</th></tr></thead>
+        <tbody>${table}</tbody>
+      </table></div>
+    </section>
+
+    <section class="method">
+      <h2>Comment c’est calculé</h2>
+      <ul>
+        <li><b>Mémoire</b> = poids du modèle (paramètres × bits par poids de la quantification) + cache de contexte + ~0,6 Go de marge logicielle. On garde ~0,8 Go de VRAM pour l’affichage et ~6 Go de RAM pour le système.</li>
+        <li><b>Vitesse</b> : la génération est limitée par la bande passante mémoire. Estimation = bande passante × rendement ÷ taille des poids <i>actifs</i> par token. C’est pour ça que les MoE (ex. « 35B · 3B actifs ») sont si rapides.</li>
+        <li><b>Quantification</b> : Q8 ≈ qualité d’origine, Q5/Q6 quasi identique, Q4_K_M = le compromis standard, Q3 et en dessous = perte visible. La page choisit la meilleure quantification selon ta priorité.</li>
+        <li><b>Classement</b> : indice de qualité indicatif (établi à partir des classements publics, à prendre comme ordre de grandeur) ajusté selon ton usage, la quantification et la fluidité.</li>
+        <li>Commandes : <code>ollama run …</code> quand le tag officiel existe ; sinon le dépôt Hugging Face, à chercher tel quel dans LM Studio (versions GGUF ou MLX).</li>
+      </ul>
+    </section>`;
+  $("showall").addEventListener("change",e=>{S.showAll=e.target.checked;render();});
+}
+
+/* ---------- Interactions ---------- */
+function syncPlatform(){
+  document.querySelectorAll("[data-for]").forEach(el=>{
+    el.classList.toggle("hidden", !el.dataset.for.split(" ").includes(S.platform));
+  });
+  $("ram-lbl").textContent = (S.platform==="mac"||S.platform==="unified") ? "Mémoire unifiée" : "RAM système";
+  if(S.platform==="unified" && +$("ram").value<64) $("ram").value="128";
+}
+
+document.querySelectorAll(".seg").forEach(seg=>{
+  seg.addEventListener("click",e=>{
+    const b = e.target.closest("button"); if(!b) return;
+    const name = seg.dataset.name;
+    if(seg.dataset.multi){
+      const on = b.getAttribute("aria-pressed")!=="true";
+      if(!on && S.usage.size===1) return;
+      b.setAttribute("aria-pressed", on); on ? S.usage.add(b.dataset.v) : S.usage.delete(b.dataset.v);
+    } else {
+      seg.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed", x===b));
+      S[name] = name==="ctx" ? +b.dataset.v : b.dataset.v;
+      if(name==="platform") syncPlatform();
+    }
+    render();
+  });
+});
+
+$("gpu").addEventListener("change",()=>{
+  const g = GPU_LIST.find(x=>x.name===$("gpu").value);
+  if(g && g.vram) $("vram").value = g.vram;
+  render();
+});
+["vram","ngpu","mac","uni","ram","ddr"].forEach(id=>$(id).addEventListener("input",render));
+$("cfg").addEventListener("submit",e=>e.preventDefault());
+
+document.addEventListener("click",e=>{
+  const b = e.target.closest("[data-copy]"); if(!b) return;
+  const txt = b.dataset.copy;
+  const done = ok=>{b.textContent = ok?"Copié":"Sélectionne"; setTimeout(()=>b.textContent="Copier",1400);};
+  try{
+    navigator.clipboard.writeText(txt).then(()=>done(true)).catch(()=>{selectCode(b);done(false);});
+  }catch(err){ selectCode(b); done(false); }
+});
+function selectCode(b){
+  const code = b.parentElement.querySelector("code");
+  const r = document.createRange(); r.selectNodeContents(code);
+  const s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+}
+
+function setPlatform(p){
+  S.platform=p;
+  document.querySelectorAll('[data-name="platform"] button').forEach(x=>x.setAttribute("aria-pressed", x.dataset.v===p));
+  syncPlatform();
+}
+function nearestRam(gb){
+  let best=RAMS[0];
+  RAMS.forEach(r=>{ if(Math.abs(r-gb) < Math.abs(best-gb)) best=r; });
+  return best;
+}
+function matchGpu(name, vram){
+  const laptop = /LAPTOP|MOBILE|MAX-Q/i.test(name);
+  const normName = name.replace(/NVIDIA|GeForce|AMD|Radeon\(TM\)|Radeon|Intel\(R\)|Graphics|Laptop GPU/gi," ").replace(/\s+/g," ").toUpperCase();
+  const cands = GPU_LIST.filter(g=>g.vram)
+    .map(g=>({g,key:g.name.replace(/ \d+ Go$/,"").replace(" portable","").toUpperCase()}))
+    .filter(c=>new RegExp("(^|\\s)"+c.key.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"(\\s|$)").test(normName))
+    .sort((a,b)=>b.key.length-a.key.length);
+  if(!cands.length) return null;
+  const topLen = cands[0].key.length;
+  const same = cands.filter(c=>c.key.length===topLen);
+  return (same.find(c=>(laptop===c.g.name.includes("portable")) && (!vram || Math.abs(c.g.vram-vram)<=1))
+       || same.find(c=>laptop===c.g.name.includes("portable"))
+       || same[0]).g;
+}
+const isIgpu = g => /UHD|Iris|Intel\(R\) Graphics|Radeon\(TM\) Graphics|Radeon Graphics|Vega \d+ Graphics|Microsoft Basic/i.test(g.name);
+
+function applyHw(hw){
+  const msg = $("detect-msg");
+  const parts = [];
+  $("ram").value = String(nearestRam(hw.ramGB));
+  if(hw.ddr) $("ddr").value = hw.ddr==="DDR5" ? "75" : "45";
+
+  if(hw.appleChip){
+    const chip = MACS.find(m=>m.name.toUpperCase()===hw.appleChip.toUpperCase());
+    setPlatform("mac");
+    if(chip) $("mac").value = chip.name;
+    parts.push("Apple "+hw.appleChip, hw.ramGB.toFixed(0)+" Go de mémoire unifiée");
+  } else if(/Ryzen AI Max/i.test(hw.cpu||"")){
+    setPlatform("unified"); $("uni").value = UNIS[0].name;
+    parts.push(hw.cpu, hw.ramGB.toFixed(0)+" Go");
+  } else {
+    const dgpus = (hw.gpus||[]).filter(g=>!isIgpu(g)).sort((a,b)=>(b.vramGB||0)-(a.vramGB||0));
+    if(dgpus.length){
+      const best = dgpus[0];
+      const sameCount = dgpus.filter(g=>g.name===best.name).length;
+      const preset = matchGpu(best.name, best.vramGB);
+      setPlatform("gpu");
+      if(preset){ $("gpu").value = preset.name; $("vram").value = best.vramGB || preset.vram; }
+      else { $("gpu").value = "Autre carte (saisir la VRAM)"; $("vram").value = best.vramGB || 8; }
+      $("ngpu").value = String(Math.min(4, sameCount));
+      parts.push((sameCount>1?sameCount+" × ":"")+best.name+(best.vramGB?" ("+best.vramGB+" Go)":""), hw.ramGB.toFixed(0)+" Go de RAM"+(hw.ddr?" "+hw.ddr:""));
+    } else {
+      setPlatform("cpu");
+      parts.push("pas de carte graphique dédiée", hw.ramGB.toFixed(0)+" Go de RAM"+(hw.ddr?" "+hw.ddr:""));
+    }
+  }
+  if(hw.cpu && !hw.appleChip) parts.push(hw.cpu.replace(/\s+/g," "));
+  msg.textContent = "Détecté : "+parts.join(" · ")+". Tu peux corriger ci-dessous.";
+  render();
+}
+
+function detectWeb(){
+  const msg = $("detect-msg");
+  let renderer = "";
+  try{
+    const c = document.createElement("canvas");
+    const gl = c.getContext("webgl") || c.getContext("experimental-webgl");
+    const ext = gl && gl.getExtension("WEBGL_debug_renderer_info");
+    renderer = ext ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : (gl ? gl.getParameter(gl.RENDERER) : "");
+  }catch(err){ renderer = ""; }
+  if(!renderer){ msg.textContent = "Le navigateur ne donne pas le nom de la carte. Choisis-la dans la liste."; return; }
+  const apple = renderer.match(/Apple (M\d(?: Pro| Max| Ultra)?)/i);
+  if(apple){
+    const chip = MACS.find(m=>m.name.toUpperCase()===apple[1].toUpperCase());
+    if(chip){ setPlatform("mac"); $("mac").value = chip.name; msg.textContent = "Détecté : Apple "+chip.name+". Vérifie la quantité de mémoire."; render(); return; }
+  }
+  const pick = matchGpu(renderer, 0);
+  if(pick){
+    setPlatform("gpu"); $("gpu").value = pick.name; $("vram").value = pick.vram;
+    msg.textContent = "Détecté : "+pick.name+". Vérifie la VRAM et la RAM (le navigateur ne les donne pas).";
+    render(); return;
+  }
+  msg.textContent = "Carte vue par le navigateur : « "+renderer+" ». Pas de correspondance exacte, choisis-la dans la liste.";
+}
+
+$("detect").addEventListener("click", async ()=>{
+  if(window.api){
+    $("detect-msg").textContent = "Détection en cours…";
+    try{ applyHw(await window.api.detect()); }catch(e){ $("detect-msg").textContent = "La détection a échoué. Choisis ta configuration à la main."; }
+  } else detectWeb();
+});
+
+function stamp(src){
+  const d = CAT_META.updated ? new Date(CAT_META.updated+"T12:00:00").toLocaleDateString("fr-FR",{day:"numeric",month:"long",year:"numeric"}) : "?";
+  $("stamp").textContent = "Liste du "+d+" · "+MODELS.length+" modèles · "+src;
+}
+
+async function boot(){
+  let cat=null, src="intégrée";
+  try{
+    if(window.api){ const r = await window.api.getCatalog(); cat = r.catalog; src = r.source; }
+    else { cat = window.__CATALOG__; src = "version web"; }
+  }catch(e){ cat = window.__CATALOG__ || null; }
+  if(!cat){ $("out").innerHTML = "<p>Impossible de charger la liste des modèles. Vérifie ta connexion puis relance l’application.</p>"; return; }
+  loadCatalog(cat); fillSelects(); syncPlatform(); stamp(src); render();
+  if(window.api){
+    $("detect-msg").textContent = "Détection de ta configuration…";
+    try{ applyHw(await window.api.detect()); }catch(e){ $("detect-msg").textContent = "Détection impossible. Choisis ta configuration à la main."; }
+  }
+}
+boot();
+</script>
+</body>
+</html>

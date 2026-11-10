@@ -1,0 +1,62 @@
+name: Construire l'application
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "package.json"
+      - ".github/workflows/build.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install
+      - name: Construire les installateurs
+        run: npx electron-builder --publish never
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app-${{ matrix.os }}
+          path: |
+            dist/*.dmg
+            dist/*.exe
+          if-no-files-found: error
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: v
+        run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+      - uses: actions/download-artifact@v4
+        with:
+          path: out
+          merge-multiple: true
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.v.outputs.version }}
+          name: Quel LLM pour mon PC ${{ steps.v.outputs.version }}
+          make_latest: true
+          files: out/*
+          body: |
+            **Mac** : `...-mac-arm64.dmg` pour les Mac Apple Silicon (M1 à M5), `...-mac-x64.dmg` pour les Mac Intel.
+            **Windows** : `...-win-x64.exe` (installateur) ou `...-portable.exe` (sans installation).
+
+            La liste des modèles se met à jour toute seule à chaque lancement : pas besoin de réinstaller.
+            L'application n'est pas signée : voir le README pour l'ouvrir la première fois.

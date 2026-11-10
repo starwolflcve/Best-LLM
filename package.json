@@ -1,0 +1,37 @@
+{
+  "name": "llm-pour-mon-pc",
+  "productName": "Quel LLM pour mon PC",
+  "version": "1.0.0",
+  "description": "Détecte ta configuration et recommande les modèles LLM locaux les plus adaptés. Liste des modèles mise à jour chaque jour.",
+  "main": "src/main.js",
+  "author": "starwolflcve",
+  "license": "MIT",
+  "catalogUrl": "https://raw.githubusercontent.com/starwolflcve/Best-LLM/main/data/models.json",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --publish never",
+    "build-web": "node scripts/build-web.mjs",
+    "validate": "node scripts/validate.mjs"
+  },
+  "devDependencies": {
+    "electron": "33.2.1",
+    "electron-builder": "25.1.8"
+  },
+  "build": {
+    "appId": "io.github.starwolflcve.llmpourmonpc",
+    "productName": "Quel LLM pour mon PC",
+    "artifactName": "LLM-pour-mon-PC-${version}-${os}-${arch}.${ext}",
+    "files": ["src/**", "data/**", "package.json"],
+    "mac": {
+      "category": "public.app-category.developer-tools",
+      "target": [{ "target": "dmg", "arch": ["arm64", "x64"] }],
+      "hardenedRuntime": false,
+      "gatekeeperAssess": false
+    },
+    "win": {
+      "target": [{ "target": "nsis", "arch": ["x64"] }, { "target": "portable", "arch": ["x64"] }]
+    },
+    "portable": { "artifactName": "LLM-pour-mon-PC-${version}-portable.${ext}" },
+    "nsis": { "oneClick": false, "allowToChangeInstallationDirectory": true, "shortcutName": "Quel LLM pour mon PC" }
+  }
+}
