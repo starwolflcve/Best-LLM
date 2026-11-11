@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-10",
+ "updated": "2026-11-11",
  "note": "Catalogue des modèles open-weight pour exécution locale. p = paramètres pour la mémoire (milliards), a = paramètres actifs par token, kv = Go de cache par 1K tokens, q = indice de qualité indicatif (0-100), fixed = taille fixe en Go si quantification native.",
  "models": [
   {
@@ -188,21 +188,22 @@
    "note": "Raisonnement et outils (agents), très rapide grâce au MoE. Texte seulement."
   },
   {
-   "id": "nemotron3-nano",
-   "name": "Nemotron 3 Nano 30B-A3B",
+   "id": "nemotron35-lightning",
+   "name": "Nemotron 3.5 Lightning 30B-A3B",
    "org": "NVIDIA",
    "p": 31.6,
    "a": 3.2,
    "disp": "32B MoE · 3B actifs",
    "kv": 0.01,
-   "q": 58,
+   "q": 64,
    "tags": [
     "reason",
-    "code"
+    "code",
+    "fr"
    ],
-   "lic": "NVIDIA Open Model",
-   "hf": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B",
-   "note": "Architecture hybride Mamba : cache très léger, idéal pour le long contexte."
+   "lic": "OpenMDW 1.1",
+   "hf": "nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16",
+   "note": "Successeur de Nemotron 3 Nano : hybride Mamba au cache très léger, nettement meilleur en code et en agents."
   },
   {
    "id": "gemma4-26",
@@ -260,6 +261,25 @@
    "lic": "Apache 2.0",
    "hf": "Qwen/Qwen3.8-27B",
    "note": "Le plus fort des modèles « une carte 24 Go » (août 2026)."
+  },
+  {
+   "id": "muse-glimmer-30",
+   "name": "Muse Glimmer 30B",
+   "org": "Meta",
+   "p": 29.6,
+   "a": 29.6,
+   "disp": "30B dense",
+   "kv": 0.015,
+   "q": 73,
+   "tags": [
+    "vision",
+    "multi",
+    "code",
+    "reason"
+   ],
+   "lic": "Apache 2.0",
+   "hf": "meta-models/Muse-Glimmer-30B",
+   "note": "Le modèle ouvert de Meta (août 2026) : excellent en agents et appels d’outils, vision incluse, tient sur une carte 24 Go en 4 bits."
   },
   {
    "id": "gemma4-31",
@@ -778,6 +798,22 @@
   {
    "name": "M5",
    "bw": 153
+  },
+  {
+   "name": "M5 Pro",
+   "bw": 307
+  },
+  {
+   "name": "M5 Max",
+   "bw": 614
+  },
+  {
+   "name": "M5 Ultra",
+   "bw": 1228
+  },
+  {
+   "name": "M6",
+   "bw": 170
   }
  ],
  "unified": [
